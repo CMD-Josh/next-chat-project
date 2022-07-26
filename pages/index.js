@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Link from 'next/link'
 import utilStyles from '../styles/utils.module.css'
 
 export default function Home(){
@@ -9,18 +10,27 @@ export default function Home(){
     </Head>
     <main>
       <div className={utilStyles.homePageWrapper}>
-        <div className="p-5 md-col-6 container border bg-light text-center">
+        <div className='col-4'/>
+        <div className="p-5 pb-5 container border bg-light text-center">
           <h3 className='mb-3'>Enter chat room</h3>
-          <div className='input-group'>
-            <input type="text" placeholder='Room ID' className='form-control'></input>
-            <input type="text" placeholder='Nickname' className='form-control'></input>
-            <div className='input-group-append'>
-              <button className="btn btn-outline-primary" type="button" style={{borderTopLeftRadius: 0, borderBottomLeftRadius: 0, marginLeft: -1}}>Enter</button>
-            </div>
-          </div>
+          <form onSubmit={enterRoom}>
+            <input type="text" placeholder='Room ID' className='form-control mb-3' id='roomID'></input>
+            <input type="text" placeholder='Nickname' className='form-control mb-4'></input>
+            <input className="btn btn-primary container-fluid mt-2" type="submit" value="Enter"/>
+          </form>
         </div>
+        <div className='col-4'/>
       </div>
     </main>
     </>
   )
+}
+
+const enterRoom = async (event) => {
+  event.preventDefault()
+  let roomID = document.getElementById('roomID').value
+  if(roomID){
+    location.href = '/rooms/' + roomID
+  }
+  return false;
 }
