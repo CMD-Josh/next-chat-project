@@ -1,0 +1,36 @@
+.chatPageWrapper{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  overflow: hidden;
+}
+
+.messageWrapper{
+  position: absolute;
+  bottom: 24px;
+  top: 46px;
+  left: 0;
+  right: 320px;
+
+  overflow-y: auto;
+}
+
+.inputWrapper{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 320px;
+}
+
+.sidebarWrapper{
+  position: absolute;
+  right: 0;
+  top: 46px;
+  bottom: 0;
+  width: 320px;
+  text-align: center;
+  border-left: 1px solid lightgrey;
+}
