@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import SideBar from '../../components/sidebar'
+import Message from '../../components/message'
 import chatStyles from '../../styles/chat.module.css'
 
 class ChatRoom extends Component{
@@ -11,11 +12,11 @@ class ChatRoom extends Component{
                 </nav>
                 <div>
                     <div className={chatStyles.messageWrapper}>
-                        <p className='px-2'>#Message</p>
+                        <Message />
                     </div>
 
                     <div className={chatStyles.inputWrapper}>
-                        <p className='mb-0 border-top'>#Input field</p>
+                        <input type="text" className='w-100 border-0 px-2' />
                     </div>
                 </div>
 

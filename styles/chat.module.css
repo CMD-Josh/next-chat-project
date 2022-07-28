@@ -23,6 +23,7 @@
   bottom: 0;
   left: 0;
   right: 320px;
+  border-top: 1px solid lightgrey;
 }
 
 .sidebarWrapper{
@@ -33,4 +34,12 @@
   width: 320px;
   text-align: center;
   border-left: 1px solid lightgrey;
+}
+
+.messageContainerSent{
+  float: right;
+}
+
+.messageContainerRecieved{
+  float: left;
 }
