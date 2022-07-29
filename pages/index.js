@@ -11,15 +11,22 @@ export default function Home(){
     <main>
       <div className={utilStyles.homePageWrapper}>
         <div className='col-4'/>
-        <div className="p-5 pb-5 container border bg-light text-center">
-          <h3 className='mb-3'>Enter chat room</h3>
-          <form onSubmit={disruptEvent}>
-            <input type="text" placeholder='Room ID' className='form-control mb-3' id='roomID'></input>
-            <input type="text" placeholder='Nickname' className='form-control mb-4'></input>
-            <input className={["btn btn-secondary mt-2 w-50", indexStyles.borderFlatRight].join(" ")} type="submit" value="Enter"/>
-            <input onClick={createRoom} className={["btn btn-primary mt-2 w-50", indexStyles.borderFlatLeft].join(" ")} type="button" value="Create Room"/>
-          </form>
-        </div>
+          <div className='row justify-content-center'>
+
+            <div id='alertElem' className='text-center mx-0 mb-4 alert alert-danger invisible' role="alert">
+              <p>Room does not exist</p>
+            </div>
+
+            <div className="p-5 pb-5 container border bg-light text-center row">
+              <h3 className='mb-3'>Enter chat room</h3>
+              <form onSubmit={disruptEvent}>
+                <input type="text" placeholder='Room ID' className='form-control mb-3' id='roomID'></input>
+                <input type="text" placeholder='Nickname' className='form-control mb-4'></input>
+                <input className={["btn btn-secondary mt-2 w-50", indexStyles.borderFlatRight].join(" ")} type="submit" value="Enter"/>
+                <input onClick={createRoom} className={["btn btn-primary mt-2 w-50", indexStyles.borderFlatLeft].join(" ")} type="button" value="Create Room"/>
+              </form>
+            </div>
+          </div>
         <div className='col-4'/>
       </div>
     </main>
@@ -46,6 +53,9 @@ const enterRoom = async (ID) => {
   
     if(result["room"] !== null){
       location.href = './rooms/' + result["room"]
+    }else{
+      const alertElem = document.getElementById("alertElem")
+      alertElem.classList.remove("invisible")
     }
   }
 }
