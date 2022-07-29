@@ -29,7 +29,17 @@ const enterRoom = async (event) => {
   event.preventDefault()
   let roomID = document.getElementById('roomID').value
   if(roomID){
-    location.href = '/rooms/' + roomID
+    //location.href = '/rooms/' + roomID
+    createRoom(roomID)
   }
   return false;
+}
+
+const createRoom = async(ID) =>{
+  const res = await fetch('./api/createRoom', {
+    method: 'POST',
+    body: JSON.stringify({'roomID': ID})
+  })
+  const text = await res.json()
+  console.log(text)
 }

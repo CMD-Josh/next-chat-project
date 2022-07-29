@@ -9,3 +9,19 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Room{
+  id String @id @default(uuid())
+  messages Messages[]
+}
+
+model Messages{
+  id Int @id @default(autoincrement())
+  message String
+  nickname String
+  posted DateTime @default(now())
+  
+  roomID String
+  room Room @relation(fields: [roomID], references: [id])
+
+}
