@@ -7,5 +7,7 @@ export default async function handler( req, res) {
     data:{}
   })
 
-  res.status(200).json({"Room": room["id"]})
+  console.log(room)
+
+  res.status(201).json({"Room": room["id"]})
 }
