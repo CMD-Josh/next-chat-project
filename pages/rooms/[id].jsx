@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import SideBar from '../../components/sidebar'
 import Message from '../../components/message'
 import chatStyles from '../../styles/chat.module.css'
+import prisma from '../../lib/prisma'
+
+const client = prisma
 
 class ChatRoom extends Component{
     render(){
@@ -12,7 +15,9 @@ class ChatRoom extends Component{
                 </nav>
                 <div>
                     <div className={chatStyles.messageWrapper}>
-                        <Message />
+                        {this.props.messages.map(msg => {
+                            return React.cloneElement(<Message key={msg.id}/>, msg)
+                        })}
                     </div>
 
                     <div className={chatStyles.inputWrapper}>
@@ -29,9 +34,23 @@ class ChatRoom extends Component{
 export async function getServerSideProps(context){
 
     let id = context.params.id
+    const messages = await client.messages.findMany({
+        where: {
+            roomID: context.params.id
+        }
+    })
+
+    console.log(messages)
+    messages.map(msg => {
+        console.log(msg.posted.getTime())
+        msg.posted = msg.posted.getTime()
+    })
 
     return {
-        props : {id}
+        props : {
+            id,
+            messages
+        }
     }
 }
 
