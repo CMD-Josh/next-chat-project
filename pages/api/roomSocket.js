@@ -1,4 +1,7 @@
 import { Server } from 'socket.io'
+import prisma from '../../lib/prisma'
+
+const client = prisma
 
 export default function handler(req, res){
 
@@ -10,13 +13,28 @@ export default function handler(req, res){
         res.socket.server.io = io
 
         io.on('connect', socket => {
-            socket.on('client-message', (message, nickname, roomID) => {
-                const data = {
-                    msg: message,
-                    name: nickname,
-                    id: roomID
-                }
-                console.log(data)
+            console.log('Connected to: ' + socket.id)
+
+            socket.on('syn-ack', (roomID) => {
+                console.log('connection from room: ' + roomID)
+                socket.join(roomID)
+                socket.in(roomID).emit('new-user', socket.id)
+            })
+
+            socket.on('client-message', async (_message, _nickname, _roomID) => {
+
+                const msg = await client.messages.create({
+                    data: {
+                        message: _message,
+                        nickname: _nickname,
+                        roomID: _roomID
+                    }
+                })
+
+                console.log("Message created on database with data:")
+                console.log(msg)
+
+                io.in(_roomID).emit('message', msg)
             })
         })
     }

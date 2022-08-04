@@ -3,7 +3,6 @@ import SideBar from '../../components/sidebar'
 import Message from '../../components/message'
 import chatStyles from '../../styles/chat.module.css'
 import prisma from '../../lib/prisma'
-import { useEffect } from 'react'
 import { io } from 'socket.io-client'
 
 let socket
@@ -11,19 +10,30 @@ let socket
 const client = prisma
 
 class ChatRoom extends Component{
+    
+    constructor(props){
+        super(props)
+        let msgs = props.messages
+
+        this.state = {
+            messageComponents: []
+        }
+
+        for(var i = 0; i < msgs.length; i++){
+            console.log("Looping messages at index: " + i)
+            this.state.messageComponents.push(React.cloneElement(<Message key={msgs[i].id} />, msgs[i]))
+        }
+    }
+    
     render(){
         return(
             <div className={["border-bottom"]}>
-                <SocketInit/>
-                <InputInit roomID={this.props.id}/>
                 <nav>
                     <h2>Room ID: {this.props.id}</h2>
                 </nav>
                 <div>
-                    <div className={chatStyles.messageWrapper}>
-                        {this.props.messages.map(msg => {
-                            return React.cloneElement(<Message key={msg.id}/>, msg)
-                        })}
+                    <div id='chatMessages' className={chatStyles.messageWrapper}>
+                        {this.state.messageComponents}
                     </div>
 
                     <div className={chatStyles.inputWrapper}>
@@ -35,33 +45,48 @@ class ChatRoom extends Component{
             </div>
         )
     }
-}
 
-function SocketInit(){
-
-    const socketInit = async() => {
-        await fetch('../api/roomSocket')
-
-        socket = io()
-        socket.on('connect', () => {console.log('Connected to socket')})
+    componentDidMount(){
+        this.SocketInit()
+        this.initInputField()
     }
 
-    useEffect(() => {
-        socketInit();
-    }, [])
-}
-
-function InputInit(roomID){
-    useEffect(() => {
+    initInputField = () => {
         const inputElem = document.getElementById('inputElement')
 
         inputElem.addEventListener('keypress', (e) => {
             if(e.key === 'Enter' && inputElem.value.length > 0){
-                socket.emit('client-message', inputElem.value, 'Foobar', roomID)
+                socket.emit('client-message', inputElem.value, 'Foobar', this.props.id)
                 inputElem.value = ''
+                console.log(this.state.messageComponents)
             }
         })
-    }, [])
+    }
+
+    SocketInit = async() => {
+        await fetch('../api/roomSocket')
+
+        socket = io()
+        socket.on('connect', () => {
+            console.log('Connected to socket')
+            socket.emit('syn-ack', this.props.id)
+        })
+
+        socket.on('message', (data) => {
+            console.log('message from server!')
+            console.log(data)
+            this.addMessage(data)
+        })
+    }
+
+    addMessage = (props) => {
+        let msgs = this.state.messageComponents
+        msgs.push(React.cloneElement(<Message key={props.id}/>, props))
+
+        this.setState({
+            messageComponents: msgs
+        })
+    }
 }
 
 export async function getServerSideProps(context){
