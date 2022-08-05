@@ -51,6 +51,11 @@ class ChatRoom extends Component{
         this.initInputField()
     }
 
+    componentDidUpdate(){
+        const chatElem = document.getElementById('chatMessages')
+        chatElem.scrollTop = chatElem.scrollHeight
+    }
+
     initInputField = () => {
         const inputElem = document.getElementById('inputElement')
 
