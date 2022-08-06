@@ -4,6 +4,7 @@ import Message from '../../components/message'
 import chatStyles from '../../styles/chat.module.css'
 import prisma from '../../lib/prisma'
 import { io } from 'socket.io-client'
+import {useRouter} from 'next/router'
 
 let socket
 
@@ -16,16 +17,17 @@ class ChatRoom extends Component{
         let msgs = props.messages
 
         this.state = {
-            messageComponents: []
+            messageComponents: [],
+            nickname: ""
         }
 
         for(var i = 0; i < msgs.length; i++){
-            console.log("Looping messages at index: " + i)
             this.state.messageComponents.push(React.cloneElement(<Message key={msgs[i].id} />, msgs[i]))
         }
     }
     
     render(){
+        console.log(this.state.nickname)
         return(
             <div className={["border-bottom"]}>
                 <nav>
@@ -49,11 +51,24 @@ class ChatRoom extends Component{
     componentDidMount(){
         this.SocketInit()
         this.initInputField()
+        this.scrollToBottom()
+        
+        let search
+        let params
+
+        if(typeof window !== 'undefined'){
+            search = window.location.search
+            params = new URLSearchParams(search)
+
+            this.state.nickname = params.get('name')
+        }else{
+            this.state.nickname = ''
+        }
+
     }
 
     componentDidUpdate(){
-        const chatElem = document.getElementById('chatMessages')
-        chatElem.scrollTop = chatElem.scrollHeight
+        this.scrollToBottom()
     }
 
     initInputField = () => {
@@ -61,7 +76,7 @@ class ChatRoom extends Component{
 
         inputElem.addEventListener('keypress', (e) => {
             if(e.key === 'Enter' && inputElem.value.length > 0){
-                socket.emit('client-message', inputElem.value, 'Foobar', this.props.id)
+                socket.emit('client-message', inputElem.value, this.state.nickname, this.props.id)
                 inputElem.value = ''
                 console.log(this.state.messageComponents)
             }
@@ -74,7 +89,7 @@ class ChatRoom extends Component{
         socket = io()
         socket.on('connect', () => {
             console.log('Connected to socket')
-            socket.emit('syn-ack', this.props.id)
+            socket.emit('syn-ack', this.props.id, this.state.nickname)
         })
 
         socket.on('message', (data) => {
@@ -92,6 +107,11 @@ class ChatRoom extends Component{
             messageComponents: msgs
         })
     }
+
+    scrollToBottom = () => {
+        const chatElem = document.getElementById('chatMessages')
+        chatElem.scrollTop = chatElem.scrollHeight
+    }
 }
 
 export async function getServerSideProps(context){
@@ -104,9 +124,7 @@ export async function getServerSideProps(context){
         }
     })
 
-    console.log(messages)
     messages.map(msg => {
-        console.log(msg.posted.getTime())
         msg.posted = msg.posted.getTime()
     })
 

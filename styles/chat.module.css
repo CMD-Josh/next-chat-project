@@ -16,6 +16,7 @@
   right: 320px;
 
   overflow-y: auto;
+  padding-bottom: 20px;
 }
 
 .inputWrapper{

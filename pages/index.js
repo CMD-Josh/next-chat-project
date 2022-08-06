@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import utilStyles from '../styles/utils.module.css'
 import indexStyles from '../styles/index.module.css'
+import Router from 'next/router'
 
 export default function Home(){
   return(
@@ -14,14 +15,14 @@ export default function Home(){
           <div className='row justify-content-center'>
 
             <div id='alertElem' className='text-center mx-0 mb-4 alert alert-danger invisible' role="alert">
-              <p>Room does not exist</p>
+              <p>Error</p>
             </div>
 
             <div className="p-5 pb-5 container border bg-light text-center row">
               <h3 className='mb-3'>Enter chat room</h3>
               <form onSubmit={disruptEvent}>
                 <input type="text" placeholder='Room ID' className='form-control mb-3' id='roomID'></input>
-                <input type="text" placeholder='Nickname' className='form-control mb-4'></input>
+                <input type="text" placeholder='Nickname' className='form-control mb-4' id='nick'></input>
                 <input className={["btn btn-secondary mt-2 w-50", indexStyles.borderFlatRight].join(" ")} type="submit" value="Enter"/>
                 <input onClick={createRoom} className={["btn btn-primary mt-2 w-50", indexStyles.borderFlatLeft].join(" ")} type="button" value="Create Room"/>
               </form>
@@ -37,35 +38,60 @@ export default function Home(){
 const disruptEvent = async(event) =>{
   event.preventDefault()
   let roomID = document.getElementById('roomID').value
-  enterRoom(roomID)
+  let nick = document.getElementById('nick').value
+  enterRoom(roomID, nick)
 }
 
-const enterRoom = async (ID) => {
-  if(ID.length){
+const enterRoom = async (ID, nick) => {
+  if(ID.length && nick.length){
     const res = await fetch('./api/joinRoom', {
       method: 'POST',
       body: JSON.stringify({
-        id: ID
+        id: ID,
+        name: nick
       })
     })
     
     const result = await res.json()
   
-    if(result["room"] !== null){
-      location.href = './rooms/' + result["room"]
+    if(result["room"] !== undefined){
+      console.log("Room is not null, it's: ")
+      console.log(result["room"])
+
+      Router.push({
+        pathname: './rooms/' + result["room"],
+        query: {
+          name: nick
+        }
+      })
+      
     }else{
-      const alertElem = document.getElementById("alertElem")
-      alertElem.classList.remove("invisible")
+      displayError(result["error"])
     }
+  }else{
+    if(!ID.length) displayError("Enter valid room ID.")
+    if(!nick.length) displayError("Enter Nickname.")
   }
 }
 
 const createRoom = async() =>{
-  const res = await fetch('./api/createRoom', {
-    method: 'POST'
-  })
-  
-  const result = await res.json()
+  let nick = document.getElementById('nick').value
 
-  enterRoom(result["Room"])
+  if(nick.length){
+    const res = await fetch('./api/createRoom', {
+      method: 'POST'
+    })
+    
+    const result = await res.json()
+
+    enterRoom(result["Room"], nick)
+  }else{
+    displayError("Enter nickname.")
+  }
+}
+
+const displayError = e => {
+  const alertElem = document.getElementById("alertElem")
+  alertElem.classList.remove("invisible")
+  alertElem.firstElementChild.innerHTML = e
 }
