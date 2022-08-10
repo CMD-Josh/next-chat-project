@@ -11,8 +11,6 @@ export default (req, res) => {
         console.log("Socket is initializing...")
         const io = new Server(res.socket.server)
         res.socket.server.io = io
-        console.log('taken names:')
-        console.log(takenNames)
         io.on('connect', socket => {
             console.log('Connected to: ' + socket.id)
 
@@ -22,15 +20,38 @@ export default (req, res) => {
 
                 let connectedNames = takenNames[roomID]
                 if(connectedNames){
-                    connectedNames.push(name)
+                    connectedNames.push([socket.id, name])
                 }else{
-                    connectedNames = [name]
+                    connectedNames = [[socket.id, name]]
                 }
+                socket.name = name
+                socket.roomID = roomID
                 takenNames[roomID] = connectedNames
+                
+                let cleanNicknames = []
+                let dirtyNicknames = takenNames[socket.roomID]
+                for(var i = 0; i < dirtyNicknames.length; i++){
+                    cleanNicknames.push(dirtyNicknames[i][1])
+                }
+                io.in(socket.roomID).emit('update-client-listing', cleanNicknames)
             })
 
             socket.on('disconnect', () => {
-                console.log(socket.id + " disconnected.")
+                takenNames[socket.roomID].find((element, index) => {
+                    if(element[0] === socket.id){
+                        takenNames[socket.roomID].splice(index, 1)
+                        return true;
+                    }
+                })
+
+                let cleanNicknames = []
+                let dirtyNicknames = takenNames[socket.roomID]
+                for(var i = 0; i < dirtyNicknames.length; i++){
+                    cleanNicknames.push(dirtyNicknames[i][1])
+                }
+                io.in(socket.roomID).emit('update-client-listing', cleanNicknames)
+
+                console.log(socket.name + " disconnected.")
             })
 
             socket.on('client-message', async (_message, _nickname, _roomID) => {
@@ -42,10 +63,6 @@ export default (req, res) => {
                         roomID: _roomID
                     }
                 })
-
-                console.log("Message created on database with data:")
-                console.log(msg)
-
                 io.in(_roomID).emit('message', msg)
             })
         })

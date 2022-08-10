@@ -8,7 +8,6 @@ export default async function handler( req, res) {
     data:{}
   })
 
-  console.log(room)
   takenNames[room["id"]] = []
 
   res.status(201).json({"Room": room["id"]})

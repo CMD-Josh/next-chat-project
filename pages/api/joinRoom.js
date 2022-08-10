@@ -4,7 +4,6 @@ import takenNames from '../../lib/takenNames'
 const client = prisma
 
 export default async function handler(req, res){
-    console.log("Joining room: " + JSON.parse(req.body)["id"])
     const reqBody = JSON.parse(req.body)
 
 
@@ -17,11 +16,8 @@ export default async function handler(req, res){
         
         let isTaken = true
         if(roomNames){
-            isTaken = roomNames.find(name => name === reqBody["name"]) ? true: false
+            isTaken = roomNames.find(name => name[1] === reqBody["name"]) ? true: false
         }
-
-        console.log(roomNames)
-        console.log(isTaken)
 
         if(!isTaken || !roomNames){
             res.status(200).json({"room": room["id"]})

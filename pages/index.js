@@ -55,8 +55,6 @@ const enterRoom = async (ID, nick) => {
     const result = await res.json()
   
     if(result["room"] !== undefined){
-      console.log("Room is not null, it's: ")
-      console.log(result["room"])
 
       Router.push({
         pathname: './rooms/' + result["room"],

@@ -4,7 +4,6 @@ import Message from '../../components/message'
 import chatStyles from '../../styles/chat.module.css'
 import prisma from '../../lib/prisma'
 import { io } from 'socket.io-client'
-import {useRouter} from 'next/router'
 
 let socket
 
@@ -18,6 +17,7 @@ class ChatRoom extends Component{
 
         this.state = {
             messageComponents: [],
+            connectedUsers: [],
             nickname: ""
         }
 
@@ -27,7 +27,6 @@ class ChatRoom extends Component{
     }
     
     render(){
-        console.log(this.state.nickname)
         return(
             <div className={["border-bottom"]}>
                 <nav>
@@ -43,7 +42,7 @@ class ChatRoom extends Component{
                     </div>
                 </div>
 
-                <SideBar />
+                <SideBar users={this.state.connectedUsers} />
             </div>
         )
     }
@@ -52,13 +51,10 @@ class ChatRoom extends Component{
         this.SocketInit()
         this.initInputField()
         this.scrollToBottom()
-        
-        let search
-        let params
 
         if(typeof window !== 'undefined'){
-            search = window.location.search
-            params = new URLSearchParams(search)
+            let search = window.location.search
+            let params = new URLSearchParams(search)
 
             this.state.nickname = params.get('name')
         }else{
@@ -78,7 +74,6 @@ class ChatRoom extends Component{
             if(e.key === 'Enter' && inputElem.value.length > 0){
                 socket.emit('client-message', inputElem.value, this.state.nickname, this.props.id)
                 inputElem.value = ''
-                console.log(this.state.messageComponents)
             }
         })
     }
@@ -88,14 +83,17 @@ class ChatRoom extends Component{
 
         socket = io()
         socket.on('connect', () => {
-            console.log('Connected to socket')
             socket.emit('syn-ack', this.props.id, this.state.nickname)
         })
 
         socket.on('message', (data) => {
-            console.log('message from server!')
-            console.log(data)
             this.addMessage(data)
+        })
+
+        socket.on('update-client-listing', (nicks) => {
+            this.setState({
+                connectedUsers: nicks
+            })
         })
     }
 

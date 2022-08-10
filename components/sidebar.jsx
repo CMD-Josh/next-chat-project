@@ -5,10 +5,18 @@ export default class SideBar extends Component{
     render(){
         return(
             <div className={chatStyles.sidebarWrapper}>
-                <span><p>#Connected User</p></span>
-                <span><p>#Connected User</p></span>
-                <span><p>#Connected User</p></span>
+                {this.props.users.map(elem => {
+                    return React.cloneElement(<ConnectedUser key={elem}/>, {name: elem})
+                })}
             </div>
+        )
+    }
+}
+
+class ConnectedUser extends Component{
+    render(){
+        return(
+            <span><p>{this.props.name}</p></span>
         )
     }
 }
