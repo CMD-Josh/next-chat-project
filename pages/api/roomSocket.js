@@ -4,7 +4,7 @@ import takenNames from '../../lib/takenNames'
 
 const client = prisma
 
-export default (req, res) => {
+export default function handler(req, res){
     if(res.socket.server.io){
         console.log("Socket is already running...")
     }else{

@@ -56,9 +56,13 @@ class ChatRoom extends Component{
             let search = window.location.search
             let params = new URLSearchParams(search)
 
-            this.state.nickname = params.get('name')
+            this.setState({
+                nickname: params.get('name')
+            })
         }else{
-            this.state.nickname = ''
+            this.setState({
+                nickname: ''
+            })
         }
 
     }
